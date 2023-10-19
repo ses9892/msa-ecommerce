@@ -1,0 +1,43 @@
+server:
+  port: 8000
+
+# Eureka에 등록될 서비스 이름
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      default-filters:
+        - name : GlobalFilter
+          args :
+            baseMeg : Hello World
+            preUse : true
+            postUse : true
+      routes:
+        - id : user-service1
+          uri : http://localhost:9001/
+          predicates :
+            - Path=/user-service1/**
+          filters:
+#            - AddRequestHeader=user-service1, user-service1-header
+#            - AddRequestParameter=serialId, ${random.uuid}
+            - CustomFilter
+        - id : user-service2
+          uri : http://localhost:9002/
+          predicates :
+            - Path=/user-service2/**
+          filters:
+#           - AddRequestHeader=user-service2, user-service2-header
+#           - AddRequestParameter=serialId, ${random.uuid}
+           - CustomFilter
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    # 유레카 서버에 등록할 URL
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${server.port}
+
+
